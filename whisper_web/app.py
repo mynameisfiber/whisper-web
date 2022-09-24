@@ -7,6 +7,7 @@ UPLOAD_FOLDER = Path("/tmp/audio/")
 UPLOAD_FOLDER.mkdir(exist_ok=True, parents=True)
 
 ALLOWED_EXTENSIONS = {"flac", "wav", "mp3", "ogg"}
+model = None
 
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
@@ -46,7 +47,10 @@ def upload_file():
 
 
 def get_results(filename):
-    model = whisper.load_model("base")
+    global model
+
+    if model is None:
+        model = whisper.load_model("base")
 
     # load audio and pad/trim it to fit 30 seconds
     audio = whisper.load_audio(str(filename))
