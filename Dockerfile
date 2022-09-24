@@ -11,7 +11,7 @@ RUN apt-get update -qq \
 WORKDIR /app/
 
 COPY requirements.txt .
-RUN pip install -r requirements.txt && pip3 cache purge
+RUN pip install -r requirements.txt 
 
 COPY . .
 
