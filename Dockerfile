@@ -4,7 +4,7 @@ WORKDIR /app
 
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update -qq \
-    && apt-get -qqq install --no-install-recommends -y pkg-config gcc g++ python3.8-dev python3-pip libpython3.8-dev git \
+    && apt-get -qqq install --no-install-recommends -y pkg-config gcc g++ python3.8-dev python3-pip libpython3.8-dev git ffmpeg \
     && apt-get clean \
     && rm -rf /var/lib/apt
 
