@@ -1,6 +1,7 @@
 from pathlib import Path
 from flask import Flask, flash, request, redirect
 from werkzeug.utils import secure_filename
+from whisper.transcribe import transcribe
 import whisper
 
 UPLOAD_FOLDER = Path("/tmp/audio/")
@@ -48,34 +49,25 @@ def upload_file():
 
 def get_results(filename):
     global model
-
     if model is None:
-        model = whisper.load_model("base")
+        model = whisper.load_model("small")
 
-    # load audio and pad/trim it to fit 30 seconds
-    audio = whisper.load_audio(str(filename))
-    filename.unlink()
-    audio = whisper.pad_or_trim(audio)
+    result = transcribe(model=model, audio=str(filename), word_timestamps=True)
+    result = result or {}
 
-    # make log-Mel spectrogram and move to the same device as the model
-    mel = whisper.log_mel_spectrogram(audio).to(model.device)
-
-    # detect the spoken language
-    _, probs = model.detect_language(mel)
-
-    # decode the audio
-    options = whisper.DecodingOptions()
-    result = whisper.decode(model, mel, options)
+    text = ""
+    for s in result.get("segments", []):
+        text += f"[{s['start']:0.1f} -> {s['end']:0.1f}] {s['text']}<br>"
 
     # print the recognized text
     return f"""
     <!doctype html>
     <title>Upload new File</title>
-    language: { max(probs, key=probs.get) }
+    language: { result.get("language") }
     <br>
-    result:
+    <hr>
     <br>
-    { result.text }
+    { text }
     """
 
 
